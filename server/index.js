@@ -57,7 +57,7 @@ const client = new MongoClient(uri, {
     // --------------------------------------------------------------------------------------/
       app.post('/jwt', async(req,res)=>{
         const email = req.body
-        const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{expiresIn: '365d'})
+        const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET,{expiresIn: '365d'})
         res.cookie('token',token,{
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
@@ -121,7 +121,7 @@ const client = new MongoClient(uri, {
     // --------------------------------------------------------------------------------------//
     app.get('/jobs/:email',verifyToken, async(req,res)=>{
       const tokenEmail = req.user.email
-      console.log(tokenData, 'from-token')
+      console.log(tokenEmail, 'from-token')
       const email = req.params.email
       if(tokenEmail !== email) return res.status(403).send({message: "forbidden access"})
       const query = {'buyer.email': email}
