@@ -1,27 +1,50 @@
-import axios from "axios";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../provider/AuthProvider";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAuth from "../hooks/useAuth";
+import toast from "react-hot-toast";
 
 const BidRequests = () => {
-  const { user } = useContext(AuthContext);
-  const [bids, setBids] = useState([]);
-  useEffect(() => {
-    getData();
-  }, [user]);
+  const axiosSecure = useAxiosSecure()
+  const { user } = useAuth();
+  const queryClient = useQueryClient()
+
+// Get data with tanstack query
+  const {data: bids=[],isLoading,refetch,isError,error} = useQuery({
+    queryFn: ()=> getData(),
+    queryKey: ['bids', user?.email]
+  })
+  console.log(bids)
+
   const getData = async () => {
-    const { data } = await axios(
-      `${import.meta.env.VITE_API_URL}/bid-requests/${user?.email}`
+    const { data } = await axiosSecure(
+      `/bid-requests/${user?.email}`
     );
-    setBids(data);
+    return data
   };
   
+  // Patch data with tanstack query
+  const {mutateAsync} = useMutation({
+    mutationFn: async ({id,status})=>{
+      const {data} = await axiosSecure.patch(`/bid/${id}`,{status})
+      console.log(data)
+      return data
+    },
+    onSuccess: ()=>{
+      console.log("Wow! data updated" )
+      toast.success("Updated successful")
+      // refetch()
+      // other way
+      queryClient.invalidateQueries({queryKey: ['bids']})
+    }
+  }) 
 
   const handleStatus = async(id,prevStatus,status) =>{
     if(prevStatus === status) return console.log("sry vai----hbe na")
-    const {data} = await axios.patch(`${import.meta.env.VITE_API_URL}/bid/${id}`,{status})
-    console.log(data)
-    getData()
+    await mutateAsync({id,status})
   }
+
+  if(isLoading) return <p>Data is still loading...</p>
 
   return (
     <section className="container px-4 mx-auto my-12">

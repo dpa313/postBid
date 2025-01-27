@@ -1,25 +1,27 @@
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../provider/AuthProvider";
+import useAuth from "../hooks/useAuth";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const MyBids = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const [bids, setBids] = useState([]);
   useEffect(() => {
     getData();
   }, [user]);
+
   const getData = async () => {
-    const { data } = await axios(
-      `${import.meta.env.VITE_API_URL}/my-bids/${user?.email}`
-    );
+    const { data } = await axiosSecure(`/my-bids/${user?.email}`);
     setBids(data);
   };
 
-  const handleStatus = async(id,status) =>{
-    const {data} = await axios.patch(`${import.meta.env.VITE_API_URL}/bid/${id}`,{status})
-    console.log(data)
-    getData()
-  }
+  const handleStatus = async (id, status) => {
+    const { data } = await axiosSecure.patch(`/bid/${id}`, { status });
+    console.log(data);
+    getData();
+  };
   return (
     <section className="container px-4 mx-auto my-12">
       <div className="flex items-center gap-x-3">
@@ -140,12 +142,14 @@ const MyBids = () => {
                                 bid.status === "Completed" && "bg-green-500"
                               } ${bid.status === "Rejected" && "bg-red-500"} `}
                             ></span>
-                            <h2 className="text-sm font-normal ">{bid.status}</h2>
+                            <h2 className="text-sm font-normal ">
+                              {bid.status}
+                            </h2>
                           </div>
                         </td>
                         <td className="px-4 py-4 text-sm whitespace-nowrap">
                           <button
-                            onClick={()=>handleStatus(bid._id, 'Completed')}
+                            onClick={() => handleStatus(bid._id, "Completed")}
                             title="Mark Complete"
                             disabled={bid.status !== "In Progress"}
                             className=" text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none disabled:cursor-not-allowed"

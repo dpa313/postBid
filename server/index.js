@@ -105,6 +105,15 @@ const client = new MongoClient(uri, {
     // --------------------------------------------------------------------------------------//
         app.post('/bid', async(req,res)=>{
           const bidData = req.body
+          // check if it is dublicate request
+          const query = {
+            email: bidData.email,
+            jobId: bidData.jobId
+          }
+          const alreadyApplied = await bidscollection.findOne(query)
+          if(alreadyApplied){
+            return res.status(400).send("Already applied")
+          }
           const result = await bidscollection.insertOne(bidData)
           res.send(result)
         })
