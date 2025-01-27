@@ -5,38 +5,49 @@ import axios from "axios";
 
 const AllJobs = () => {
   const [jobs, setJobs] = useState([]);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
   const [currentPage, setCurrentPage] = useState(1);
   const [count, setCount] = useState(0);
   const [filter, setFilter] = useState("");
   const [sort,setSort] = useState("")
+  const [search,setSearch] = useState('')
+  const [searchText,setSearchText] = useState('')
 
   const handleReset = () =>{
     setFilter('')
     setSort('')
+    setSearch('')
+    setSearchText('')
   }
+
+  const handleSearch = e =>{
+    e.preventDefault()
+    setSearch(searchText)
+  }
+
+  console.log(search)
 
   useEffect(() => {
     const getData = async () => {
       const { data } = await axios(
         `${
           import.meta.env.VITE_API_URL
-        }/all-jobs?page=${currentPage}&size=${itemsPerPage}&filter=${filter}&sort=${sort}`
+        }/all-jobs?page=${currentPage}&size=${itemsPerPage}&filter=${filter}&sort=${sort}&search=${search}`
       );
       setJobs(data);
     };
     getData();
-  }, [currentPage, filter,sort,itemsPerPage]);
+  }, [currentPage, filter,sort,search,itemsPerPage]);
 
   useEffect(() => {
     const getCount = async () => {
       const { data } = await axios(
-        `${import.meta.env.VITE_API_URL}/jobs-count?filter=${filter}`
+        `${import.meta.env.VITE_API_URL}/jobs-count?filter=${filter}&search=${search}`
       );
       setCount(data.count);
     };
     getCount();
-  }, [filter]);
+  }, [filter,search]);
   const numberOfPages = Math.ceil(count / itemsPerPage);
   const pages = [...Array(numberOfPages).keys()].map((element) => element + 1);
 
@@ -67,9 +78,11 @@ const AllJobs = () => {
             </select>
           </div>
 
-          <form>
+          <form onSubmit={handleSearch}>
             <div className="flex p-1 overflow-hidden border rounded-lg    focus-within:ring focus-within:ring-opacity-40 focus-within:border-blue-400 focus-within:ring-blue-300">
               <input
+              onChange={(e)=>setSearchText(e.target.value)}
+              value={searchText}
                 className="px-6 py-2 text-gray-700 placeholder-gray-500 bg-white outline-none focus:placeholder-transparent"
                 type="text"
                 name="search"
