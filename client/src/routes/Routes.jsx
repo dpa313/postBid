@@ -11,6 +11,7 @@ import UpdateJob from "../pages/UpdateJob";
 import PrivateRoute from "./PrivateRoute";
 import MyBids from "../pages/MyBids";
 import BidRequests from "../pages/BidRequests";
+import AllJobs from "../pages/AllJobs";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
         index: true,
         element: <Home />,
         // loader: () => fetch(`${import.meta.env.VITE_API_URL}/jobs`) //we can also load data like this but we use axios
+      },
+      {
+        path: '/jobs',
+        element: <AllJobs/>
       },
       {
         path: "/login",

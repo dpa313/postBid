@@ -12,11 +12,11 @@ const useAxiosSecure = () => {
     const navigate = useNavigate()
     // Response interceptors
     axiosSecure.interceptors.response.use(res=>{
-        console.log('error before respone')
+        // console.log('error before respone')
         return res
     },
     async error =>{
-        console.log('Error from axios interceptors', error.response)
+        // console.log('Error from axios interceptors', error.response)
         if(error.response.status === 401 || error.response.status === 403){
             logOut()
             navigate('/login')
